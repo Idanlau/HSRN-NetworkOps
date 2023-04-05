@@ -33,6 +33,8 @@
 
   collections:
     - davidban77.gns3
+    - arista.eos
+
   tasks:
     - name: "Create network topology"
       gns3_project:
@@ -51,91 +53,125 @@
         nodes_strategy: one_by_one
 
 
-    - name: "Configure BGP on iosvl3-01"
-      ios_command:
-        provider:
-          host: "{{ gns3_url }}"
-          username: "cisco"
-          password: "cisco"
-          authorize: yes
-          auth_pass: "cisco"
-        commands:
-        - "router bgp 65001"
-        - "bgp log-neighbor-changes"
-        - "neighbor 192.168.12.2 remote-as 65002"
-        - "neighbor 192.168.12.2 update-source Loopback0"
-        - "network 192.168.13.0 mask 255.255.255.0"
+    - name: Configure BGP on switch1
+      arista.eos.eos_bgp_global:
+        asn: 65001
+        router_id: 1.1.1.1
+        log_neighbor_changes: true
+        neighbors:
+          - ip: 192.168.12.2
+            remote_as: 65002
+            update_source: Loopback0
+        networks:
+          - ip_prefix: 192.168.13.0/24
+            route_map: null
+            
+      register: bgp_config_switch1
 
-    - name: "Configure BGP on iosvl2-01"
-      ios_command:
-        provider:
-          host: "{{ gns3_url }}"
-          username: "cisco"
-          password: "cisco"
-          authorize: yes
-          auth_pass: "cisco"
-        commands:
-        - "router bgp 65002"
-        - "bgp log-neighbor-changes"
-        - "neighbor 192.168.12.1 remote-as 65001"
-        - "neighbor 192.168.12.1 update-source Loopback0"
-        - "network 192.168.12.0 mask 255.255.255.0"
+    - name: Configure BGP on switch2
+      arista.eos.eos_bgp_global:
+        asn: 65002
+        router_id: 2.2.2.2
+        log_neighbor_changes: true
+        neighbors:
+          - ip: 192.168.12.1
+            remote_as: 65001
+            update_source: Loopback0
+        networks:
+          - ip_prefix: 192.168.12.0/24
+            route_map: null
+            
+      register: bgp_config_switch2
 
-    - name: "Configure BGP on iosvl3-02"
-      ios_command:
-        provider:
-          host: "{{ gns3_url }}"
-          username: "cisco"
-          password: "cisco"
-          authorize: yes
-          auth_pass: "cisco"
-        commands:
-        - "router bgp 65003"
-        - "bgp log-neighbor-changes"
-        - "neighbor 192.168.23.2 remote-as 65004"
-        - "neighbor 192.168.23.2 update-source Loopback0"
-        - "network 192.168.33.0 mask 255.255.255.0"
-
-    - name: "Configure BGP on iosvl2-02"
-      ios_command:
-        provider:
-          host: "{{ gns3_url }}"
-          username: "cisco"
-          password: "cisco"
-          authorize: yes
-          auth_pass: "cisco"
-        commands:
-        - "router bgp 65004"
-        - "bgp log-neighbor-changes"
-        - "neighbor 192.168.23.1 remote-as 65003"
-        - "neighbor 192.168.23.1 update-source Loopback0"
-        - "network 192.168.23.0 mask 255.255.255.0"
-
-    - name: "Configure BGP on iosvl3-03"
-      ios_command:
-        provider:
-          host: "{{ gns3_url }}"
-          username: "cisco"
-          password: "cisco"
-          authorize: yes
-          auth_pass: "cisco"
-        commands:
-        - "router bgp 65005"
-        - "bgp log-neighbor-changes"
-        - "neighbor 192.168.34.2 remote-as 65006"
-        - "neighbor 192.168.34.2 update-source Loopback0"
-        - "network 192.168.35.0 mask 255.255.255.0"
-
-    - name: "Configure BGP on iosvl2-03"
-      ios_command:
-        provider:
-        host: "{{ gns3_url }}"
-        username: "cisco"
-        password: "cisco"
-        authorize: yes
-        auth_pass: "cisco"
+    - name: Configure BGP on switch3
+      arista.eos.eos_bgp_global:
+        asn: 65003
+        router_id: 3.3.3.3
+        log_neighbor_changes: true
+        neighbors:
+          - ip: 192.168.23.2
+            remote_as: 65004
+            update_source: Loopback0
+        networks:
+          - ip_prefix: 192.168.33.0/24
+            route_map: null
+            
 
 
+    - name: Configure BGP on switch4
+      arista.eos.eos_bgp_global:
+        asn: 65004
+        router_id: 4.4.4.4
+        log_neighbor_changes: true
+        neighbors:
+          - ip: 192.168.23.1
+            remote_as: 65003
+            update_source: Loopback0
+        networks:
+          - ip_prefix: 192.168.23.0/24
+            route_map: null
+
+
+
+    - name: Configure BGP on switch5
+      arista.eos.eos_bgp_global:
+        asn: 65005
+        router_id: 5.5.5.5
+        log_neighbor_changes: true
+        neighbors:
+          - ip: 192.168.34.2
+            remote_as: 65006
+            update_source: Loopback0
+        networks:
+          - ip_prefix: 192.168.35.0/24
+            route_map: null
+
+
+    - name: Configure BGP on switch6
+      arista.eos.eos_bgp_global:
+        asn: 65006
+        router_id: 6.6.6.6
+        log_neighbor_changes: true
+        neighbors:
+          - ip: 192.168.34.1
+            remote_as: 65005
+            update_source: Loopback0
+        networks:
+          - ip_prefix: 192.168.34.0/24
+            route_map: null
+
+    - name: Configure BGP on switch7
+      arista.eos.eos_bgp_global:
+        asn: 65007
+        router_id: 7.7.7.7
+        log_neighbor_changes: true
+        neighbors:
+          - ip: 192.168.45.2
+            remote_as: 65008
+            update_source: Loopback0
+        networks:
+          - ip_prefix: 192.168.47.0/24
+            route_map: null
+
+    - name: Configure BGP on switch8
+      arista.eos.eos_bgp_global:
+        asn: 65008
+        router_id: 8.8.8.8
+        log_neighbor_changes: true
+        neighbors:
+          - ip: 192.168.45.1
+            remote_as: 65007
+            update_source: Loopback0
+        networks:
+          - ip_prefix: 192.168.45.0/24
+            route_map: null
+
+
+    - name: "Delete nodes"
+      gns3_project:
+        url: "{{ gns3_url }}"
+        project_name: "demo_lab"
+        state: absent
 
 #https://docs.ansible.com/ansible/latest/collections/arista/eos/eos_bgp_global_module.html
 #https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_module.html
